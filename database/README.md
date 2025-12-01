@@ -3,8 +3,7 @@
 Instructions on how to build the database
 
 1. **Building the image**
-   
-  ```powershell
+   ```powershell
   docker build -t gamelend-postgres .
   ```
 
