@@ -8,9 +8,10 @@ Instructions on how to build the database
    ```
 
 3. **Configure credentials**
+   
    Edit the .env file
 
-4. **Create and run the container**
+5. **Create and run the container**
    
    ```powershell
    docker run --name gamelend-db `
