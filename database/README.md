@@ -4,13 +4,13 @@ Instructions on how to build the database
 
 1. **Building the image**
    ```powershell
-  docker build -t gamelend-postgres .
-  ```
+   docker build -t fleetify-postgres database
+   ```
 
-2. **Configure credentials**
+3. **Configure credentials**
    Edit the .env file
 
-3. **Create and run the container**
+4. **Create and run the container**
    
    ```powershell
    docker run --name gamelend-db `
