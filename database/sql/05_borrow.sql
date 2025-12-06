@@ -1,8 +1,8 @@
-CREATE TABLE IF NOT EXISTS "Borrow" (
-    userId          UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
-    copyId          UUID NOT NULL REFERENCES "Copy"(id) ON DELETE CASCADE,
-    borrowStartTime TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    PRIMARY KEY (userId, copyId)
+CREATE TABLE IF NOT EXISTS borrow (
+    user_id          UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    copy_id          UUID NOT NULL REFERENCES copy(id) ON DELETE CASCADE,
+    borrow_start_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, copy_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_borrow_copyId ON "Borrow"(copyId);
+CREATE INDEX IF NOT EXISTS idx_borrow_copy_id ON borrow(copy_id);

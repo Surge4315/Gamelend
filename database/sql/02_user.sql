@@ -1,24 +1,24 @@
-CREATE TABLE IF NOT EXISTS "User" (
+CREATE TABLE IF NOT EXISTS users (
     id                          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email                       CITEXT UNIQUE NOT NULL,
     password                    TEXT NOT NULL,
     provider                    TEXT NOT NULL DEFAULT 'local',
-    isVerified                  BOOLEAN NOT NULL DEFAULT false,
-    verificationToken           TEXT,
-    verificationTokenExpires    TIMESTAMPTZ,
-    pendingEmail                CITEXT,
-    emailChangeToken            TEXT,
-    emailChangeTokenExpires     TIMESTAMPTZ,
-    passwordResetToken          TEXT,
-    passwordResetTokenExpires   TIMESTAMPTZ,
-    isDeletionPending           BOOLEAN NOT NULL DEFAULT false,
-    deletionScheduledAt         TIMESTAMPTZ
+    is_verified                  BOOLEAN NOT NULL DEFAULT false,
+    verification_token           TEXT,
+    verification_token_expires    TIMESTAMPTZ,
+    pending_email                CITEXT,
+    email_change_token            TEXT,
+    email_change_token_expires     TIMESTAMPTZ,
+    password_reset_token          TEXT,
+    password_reset_token_expires   TIMESTAMPTZ,
+    is_deletion_pending           BOOLEAN NOT NULL DEFAULT false,
+    deletion_scheduled_at         TIMESTAMPTZ
 );
 
-CREATE TABLE IF NOT EXISTS "UserRole" (
+CREATE TABLE IF NOT EXISTS user_role (
     role        TEXT NOT NULL,
-    userId      UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
-    PRIMARY KEY (role, userId)
+    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (role, user_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_userrole_userId ON "UserRole"(userId);
+CREATE INDEX IF NOT EXISTS idx_user_role_user_id ON user_role(user_id);

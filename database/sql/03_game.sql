@@ -1,14 +1,14 @@
-CREATE TABLE IF NOT EXISTS "Game" (
+CREATE TABLE IF NOT EXISTS game (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name            TEXT NOT NULL,
 	image_link		TEXT,	
 	description		TEXT NOT NULL,
     studio          TEXT NOT NULL,
-    availableCopies INT NOT NULL DEFAULT 0
+    available_copies INT NOT NULL DEFAULT 0
 );
 
 -- if necessary: ALTER TYPE game_category ADD VALUE 'RPG';
-CREATE TYPE game_category AS ENUM (
+CREATE TYPE game_categories AS ENUM (
     'Action',
     'Puzzle',
     'Adventure',
@@ -19,24 +19,24 @@ CREATE TYPE game_category AS ENUM (
 	'Racing'
 );
 
-CREATE TABLE IF NOT EXISTS "GameCategory" (
-    category    game_category NOT NULL,
-    gameId      UUID NOT NULL REFERENCES "Game"(id) ON DELETE CASCADE,
-    PRIMARY KEY (category, gameId)
+CREATE TABLE IF NOT EXISTS game_category (
+    category    game_categories NOT NULL,
+    game_id      UUID NOT NULL REFERENCES game(id) ON DELETE CASCADE,
+    PRIMARY KEY (category, game_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_gamecategory_gameId
-    ON "GameCategory"(gameId);
+CREATE INDEX IF NOT EXISTS idx_game_category_game_id
+    ON game_category(game_id);
 	
 	
-CREATE TABLE IF NOT EXISTS "Comment" (
+CREATE TABLE IF NOT EXISTS comment (
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    gameId      UUID NOT NULL REFERENCES "Game"(id) ON DELETE CASCADE,
-	userID		UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+    game_id      UUID NOT NULL REFERENCES game(id) ON DELETE CASCADE,
+	user_id		UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     contents    TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_comment_gameId ON "Comment"(gameId);
+CREATE INDEX IF NOT EXISTS idx_comment_game_id ON comment(game_id);
 
 CREATE TYPE platform_type AS ENUM (
     'PS4',
@@ -47,12 +47,12 @@ CREATE TYPE platform_type AS ENUM (
 	'Switch 2'
 );
 
-CREATE TABLE IF NOT EXISTS "Copy" (
+CREATE TABLE IF NOT EXISTS copy (
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    gameId      UUID NOT NULL REFERENCES "Game"(id) ON DELETE CASCADE,
-    langVersion TEXT NOT NULL,
+    game_id      UUID NOT NULL REFERENCES game(id) ON DELETE CASCADE,
+    lang_version TEXT NOT NULL,
     platform    platform_type NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_copy_gameId ON "Copy"(gameId);
+CREATE INDEX IF NOT EXISTS idx_copy_game_id ON copy(game_id);
 

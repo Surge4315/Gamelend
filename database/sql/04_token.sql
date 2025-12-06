@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS "RefreshToken" (
+CREATE TABLE IF NOT EXISTS refresh_token (
     token       TEXT PRIMARY KEY,
-    userId      UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE
+    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_refreshToken_userId ON "RefreshToken"(userId);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON refresh_token(user_id);
