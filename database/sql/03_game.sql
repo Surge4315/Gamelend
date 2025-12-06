@@ -1,13 +1,10 @@
 CREATE TABLE IF NOT EXISTS "Game" (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name            TEXT NOT NULL,
-	image_link		TEXT NULL,	
-    averageRate     NUMERIC(3,2) DEFAULT 0,
-    nrOfRates       INT NOT NULL DEFAULT 0,
+	image_link		TEXT,	
+	description		TEXT NOT NULL,
     studio          TEXT NOT NULL,
-    availableCopies INT NOT NULL DEFAULT 0,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    availableCopies INT NOT NULL DEFAULT 0
 );
 
 -- if necessary: ALTER TYPE game_category ADD VALUE 'RPG';
@@ -35,8 +32,8 @@ CREATE INDEX IF NOT EXISTS idx_gamecategory_gameId
 CREATE TABLE IF NOT EXISTS "Comment" (
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     gameId      UUID NOT NULL REFERENCES "Game"(id) ON DELETE CASCADE,
-    contents    TEXT NOT NULL,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	userID		UUID NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+    contents    TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_comment_gameId ON "Comment"(gameId);
@@ -54,8 +51,7 @@ CREATE TABLE IF NOT EXISTS "Copy" (
     id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     gameId      UUID NOT NULL REFERENCES "Game"(id) ON DELETE CASCADE,
     langVersion TEXT NOT NULL,
-    platform    platform_type NOT NULL,
-    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    platform    platform_type NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_copy_gameId ON "Copy"(gameId);

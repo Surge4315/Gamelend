@@ -12,9 +12,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     passwordResetToken          TEXT,
     passwordResetTokenExpires   TIMESTAMPTZ,
     isDeletionPending           BOOLEAN NOT NULL DEFAULT false,
-    deletionScheduledAt         TIMESTAMPTZ,
-    created_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    deletionScheduledAt         TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS "UserRole" (
