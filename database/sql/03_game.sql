@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS "Game" (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name            TEXT NOT NULL,
+	image_link		TEXT NULL,	
     averageRate     NUMERIC(3,2) DEFAULT 0,
     nrOfRates       INT NOT NULL DEFAULT 0,
     studio          TEXT NOT NULL,
