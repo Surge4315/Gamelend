@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine, text
+from fastapi import FastAPI, Depends
 
 # Parametry połączenia
 user = "auth_user"
@@ -15,3 +16,10 @@ with engine.connect() as connection:
     result = connection.execute(text("SELECT version();"))
     for row in result:
         print(row[0])
+        
+app = FastAPI()
+
+#gotta start somewhere
+@app.get("/")
+def root():
+    return {"message": "Hello world"}
