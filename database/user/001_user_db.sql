@@ -1,3 +1,9 @@
+-- Enable helpful extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS citext;
+
+-- Users table
 CREATE TABLE IF NOT EXISTS users (
     id                          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email                       CITEXT UNIQUE NOT NULL,
@@ -15,6 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
     deletion_scheduled_at         TIMESTAMPTZ
 );
 
+-- User roles
 CREATE TABLE IF NOT EXISTS user_role (
     role        TEXT NOT NULL,
     user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -22,3 +29,11 @@ CREATE TABLE IF NOT EXISTS user_role (
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_role_user_id ON user_role(user_id);
+
+-- Refresh tokens
+CREATE TABLE IF NOT EXISTS refresh_token (
+    token       TEXT PRIMARY KEY,
+    user_id      UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON refresh_token(user_id);
