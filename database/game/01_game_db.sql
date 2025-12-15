@@ -54,11 +54,10 @@ CREATE TABLE IF NOT EXISTS copy (
 
 CREATE INDEX IF NOT EXISTS idx_copy_game_id ON copy(game_id);
 
--- Comment table (user_id without FK)
+-- Comment table
 CREATE TABLE IF NOT EXISTS comment (
     id 			UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     game_id      INT NOT NULL REFERENCES game(id) ON DELETE CASCADE,
-    user_id      UUID NOT NULL,
     contents    TEXT NOT NULL
 );
 
