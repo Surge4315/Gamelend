@@ -56,8 +56,8 @@ CREATE INDEX IF NOT EXISTS idx_copy_game_id ON copy(game_id);
 
 -- Comment table
 CREATE TABLE IF NOT EXISTS comment (
-    id 			UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    game_id      INT NOT NULL REFERENCES game(id) ON DELETE CASCADE,
+    id 			INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    game_id     INT NOT NULL REFERENCES game(id) ON DELETE CASCADE,
     contents    TEXT NOT NULL
 );
 

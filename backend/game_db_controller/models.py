@@ -35,7 +35,7 @@ class GameCategory(Base):
 class Comment(Base):
     __tablename__ = "comment"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True)
     game_id = Column(Integer, ForeignKey("game.id", ondelete="CASCADE"), nullable=False)
     contents = Column(Text, nullable=False)
 
