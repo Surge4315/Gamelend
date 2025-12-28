@@ -9,7 +9,7 @@ import requests
 # HATE.
 # HATE.
 url = "http://127.0.0.1:8000/comment/501"
-data = {"contents": "niesamowitym pomyslem jest brak sprawdzania uzytkownika"}
+data = {"contents": "komentarz"}
 
 response = requests.post(url, json=data)
 print(response.json())
