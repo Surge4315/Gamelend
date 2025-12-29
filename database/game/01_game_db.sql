@@ -46,7 +46,7 @@ CREATE TYPE platform_type AS ENUM (
 
 -- Copy table
 CREATE TABLE IF NOT EXISTS copy (
-    copy_id      INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    copy_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id      	 INT NOT NULL REFERENCES game(id) ON DELETE CASCADE,
     lang_version TEXT NOT NULL,
     platform     platform_type NOT NULL
@@ -66,7 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_comment_game_id ON comment(game_id);
 -- Borrow table (user_id without FK)
 CREATE TABLE IF NOT EXISTS borrow (
     user_id          UUID NOT NULL,
-    copy_id          INT NOT NULL REFERENCES copy(copy_id) ON DELETE CASCADE,
+    copy_id          UUID NOT NULL REFERENCES copy(copy_id) ON DELETE CASCADE,
     borrow_start_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, copy_id)
 );

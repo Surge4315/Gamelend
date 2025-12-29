@@ -1,7 +1,8 @@
 import uuid
 import enum
+from sqlalchemy.sql import func
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -40,3 +41,20 @@ class Comment(Base):
     contents = Column(Text, nullable=False)
 
     game = relationship("Game", backref="comments")
+
+class Copy(Base):
+    __tablename__ = "copy"
+
+    copy_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    game_id = Column(Integer, ForeignKey("game.id", ondelete="CASCADE"), nullable=False)
+
+    game = relationship("Game", backref="copies")
+
+class Borrow(Base):
+    __tablename__ = "borrow"
+
+    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    copy_id = Column(UUID(as_uuid=True), ForeignKey("copy.copy_id", ondelete="CASCADE"), primary_key=True)
+    borrow_start_time = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
+
+    copy = relationship("Copy", backref="borrows")

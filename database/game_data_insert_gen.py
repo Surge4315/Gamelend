@@ -80,13 +80,14 @@ while i <= NUM_GAMES:
             f"VALUES ('{cat}', {i});"
         )
     
-    # Generowanie kopii dla tej gry
+    # Generowanie kopii dla tej gry z UUID
     for _ in range(num_copies):
         lang = random.choice(languages)
         platform = random.choice(platforms)
+        copy_id = uuid.uuid4()
         copies_inserts.append(
-            f'INSERT INTO copy (game_id, lang_version, platform) '
-            f"VALUES ({i}, '{lang}', '{platform}');"
+            f'INSERT INTO copy (copy_id, game_id, lang_version, platform) '
+            f"VALUES ('{copy_id}', {i}, '{lang}', '{platform}');"
         )
     
     i += 1
@@ -99,7 +100,7 @@ with open('insert_games_data.sql', 'w', encoding='utf-8') as f:
     
     f.write('\n-- Inserting game categories\n')
     for line in categories_inserts:
-        f. write(line + '\n')
+        f.write(line + '\n')
     
     f.write('\n-- Inserting game copies\n')
     for line in copies_inserts:

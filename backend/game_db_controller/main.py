@@ -1,9 +1,22 @@
-from fastapi import FastAPI, Depends, Query, HTTPException
+from fastapi import FastAPI, Depends, Query, HTTPException, Header
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from .database import engine, Base, get_db
+import requests
+import httpx
+from .database import Database, Base
 from . import models
+
+db_instance = Database(
+    user="user_db",
+    password="password_db",
+    host="localhost",
+    port="5432",
+    database="game_db",
+)
+
+engine = db_instance.engine
+get_db = db_instance.get_db
 
 # Tworzenie tabel
 Base.metadata.create_all(bind=engine)
@@ -69,9 +82,10 @@ def get_comments(game_id: int, db: Session = Depends(get_db)):
     ]
     
     
-# Pydantic models
+# Pydantic model for comment creation
 class CommentCreate(BaseModel):
     contents: str
+
 
 @app.post("/comment/{game_id}")
 def add_comment(game_id: int, comment: CommentCreate, db: Session = Depends(get_db)):
@@ -91,3 +105,45 @@ def add_comment(game_id: int, comment: CommentCreate, db: Session = Depends(get_
         "contents": new_comment.contents
     }
     
+#functions that require communication between microservices    
+BACKEND_USERS_URL = "http://127.0.0.1:8001"
+
+@app.get("/my-borrows")
+def my_borrows(email: str = Header(...), db: Session = Depends(get_db)):
+    """
+    Zwraca wszystkie gry aktualnie wypożyczone przez użytkownika na podstawie emaila,
+    korzystając z endpointu /by-email w celu uzyskania UUID.
+    """
+    # Wywołanie lokalnego API /by-email
+    try:
+        response = httpx.get(f"{BACKEND_USERS_URL}/by-email", params={"email": email})
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="User not found")
+        else:
+            raise HTTPException(status_code=500, detail="Error calling /by-email endpoint")
+
+    user_id = response.json()["id"]
+
+    # Szukanie wypożyczeń po UUID użytkownika
+    borrows = db.query(models.Borrow).filter(models.Borrow.user_id == user_id).all()
+
+    result = []
+    for b in borrows:
+        copy = db.query(models.Copy).filter(models.Copy.copy_id == b.copy_id).first()
+        if not copy:
+            continue
+        game = db.query(models.Game).filter(models.Game.id == copy.game_id).first()
+        if not game:
+            continue
+
+        result.append({
+            "copyId": b.copy_id,
+            "gameId": game.id,
+            "name": game.name,
+            "cover": game.image_link,
+            "borrowStartTime": b.borrow_start_time.isoformat()
+        })
+
+    return result

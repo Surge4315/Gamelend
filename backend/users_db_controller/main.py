@@ -2,8 +2,21 @@ from fastapi import FastAPI, Depends, Query, HTTPException
 from sqlalchemy import text
 from uuid import UUID
 from sqlalchemy.orm import Session
-from .database import engine, Base, get_db
+from .database import Database, Base
 from . import models
+
+db_instance = Database(
+    user="user_db",
+    password="password_db",
+    host="localhost",
+    port="5433",
+    database="users_db",
+)
+
+engine = db_instance.engine
+get_db = db_instance.get_db
+
+
 
 # Tworzenie tabel
 Base.metadata.create_all(bind=engine)
@@ -20,7 +33,7 @@ app = FastAPI()
 def root():
     return {"message": "Hello world"}
 
-#127.0.0.1:8001/user/UUID
+#127.0.0.1:8001/user/{UUID}
 @app.get("/user/{user_id}")
 def get_user(user_id: UUID, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -38,4 +51,17 @@ def get_user(user_id: UUID, db: Session = Depends(get_db)):
         "deletion_scheduled_at": user.deletion_scheduled_at.isoformat() if user.deletion_scheduled_at else None,
         "roles": [role.role for role in user.roles]
     }
+
+
+#127.0.0.1:8001/by-email
+@app.get("/by-email")
+def get_user_by_email(email: str = Query(...), db: Session = Depends(get_db)):
+    """
+    Endpoint zwracający UUID użytkownika na podstawie podanego e-maila.
+    """
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not fdound")
+    
+    return {"id": str(user.id)}
 
