@@ -3,8 +3,9 @@ import enum
 from sqlalchemy.sql import func
 from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
-from sqlalchemy.orm import relationship
-from .database import Base
+from sqlalchemy.orm import relationship, declarative_base
+
+Base = declarative_base() #has to be global or nothing works
 
 class Game(Base):
     __tablename__ = "game"

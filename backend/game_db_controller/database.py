@@ -1,8 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-Base = declarative_base() #has to be global or nothing works
-
 class Database:
     def __init__(self, user: str, password: str, host: str, port: str, database: str):
         self.user = user
@@ -21,3 +19,12 @@ class Database:
             yield db
         finally:
             db.close()
+
+# Create a single database instance
+db_instance = Database(
+    user="user_db",
+    password="password_db",
+    host="localhost",
+    port="5432",
+    database="game_db",
+)

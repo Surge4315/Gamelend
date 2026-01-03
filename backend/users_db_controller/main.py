@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, Query, HTTPException
 from sqlalchemy import text
 from uuid import UUID
 from sqlalchemy.orm import Session
-from .database import Database, Base
+from .database import Database
 from . import models
 
 db_instance = Database(
@@ -19,7 +19,7 @@ get_db = db_instance.get_db
 
 
 # Tworzenie tabel
-Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 # Wypisanie wersji PostgreSQL
 with engine.connect() as connection:

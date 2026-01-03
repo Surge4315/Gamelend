@@ -1,8 +1,9 @@
 import uuid
 from sqlalchemy import Column, String, Boolean, Text, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID, CITEXT
-from sqlalchemy.orm import relationship
-from .database import Base
+from sqlalchemy.orm import relationship, declarative_base
+
+Base = declarative_base() #has to be global or nothing works
 
 class User(Base):
     __tablename__ = "users"
