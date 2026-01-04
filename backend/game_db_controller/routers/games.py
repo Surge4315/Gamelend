@@ -47,4 +47,6 @@ def get_game(game_id: int, db: Session = Depends(get_db)):
         "studio": game.studio,
         "description": game.description,
         "categories": [gc.category.value for gc in game.game_categories],
+        # for testing
+         "availableCopies": game.available_copies
     }

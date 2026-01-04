@@ -65,3 +65,21 @@ def get_user_by_email(email: str = Query(...), db: Session = Depends(get_db)):
     
     return {"id": str(user.id)}
 
+
+#127.0.0.1:8001/by-id
+@app.get("/by-id")
+def get_user_by_id(id: str = Query(...), db: Session = Depends(get_db)):
+    """
+    Endpoint zwracający email użytkownika na podstawie podanego UUID.
+    """
+    try:
+        user_uuid = UUID(id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid UUID format")
+    
+    user = db.query(models.User).filter(models.User.id == user_uuid).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"email": user.email}
+

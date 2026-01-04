@@ -49,7 +49,8 @@ CREATE TABLE IF NOT EXISTS copy (
     copy_id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     game_id      	 INT NOT NULL REFERENCES game(id) ON DELETE CASCADE,
     lang_version TEXT NOT NULL,
-    platform     platform_type NOT NULL
+    platform     platform_type NOT NULL,
+	available BOOLEAN NOT NULL DEFAULT true
 );
 
 CREATE INDEX IF NOT EXISTS idx_copy_game_id ON copy(game_id);

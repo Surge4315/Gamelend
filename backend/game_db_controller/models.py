@@ -1,7 +1,7 @@
 import uuid
 import enum
 from sqlalchemy.sql import func
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Text
+from sqlalchemy import Boolean, Column, Integer, String, Enum, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
 from sqlalchemy.orm import relationship, declarative_base
 
@@ -48,6 +48,7 @@ class Copy(Base):
 
     copy_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     game_id = Column(Integer, ForeignKey("game.id", ondelete="CASCADE"), nullable=False)
+    available = Column(Boolean, nullable=False, default=True)
 
     game = relationship("Game", backref="copies")
 
