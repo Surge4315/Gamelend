@@ -1,4 +1,7 @@
 import requests
+import jwt
+import uuid
+from datetime import datetime, timedelta, timezone
 
 # HATE. 
 # LET ME TELL YOU HOW MUCH I'VE COME TO HATE JAVASCRIPT SINCE I BEGAN TO LIVE. 
@@ -9,12 +12,47 @@ import requests
 # HATE.
 # HATE.
 
+SECRET_KEY = "amogus" #secretest of keys
+ALGORITHM = "HS256"
+
+def create_access_token(user_id: str, roles, expires_in_minutes: int = 15) -> str:
+    # Zamiana user_id na UUID, jeśli nie jest UUID
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except ValueError:
+        raise ValueError("Niepoprawny format UUID dla user_id")
+    
+    # Konwersja na listę jeśli to pojedyncza rola
+    if isinstance(roles, str):
+        roles = [roles]
+
+    payload = {
+        "sub": str(user_uuid),
+        "roles": roles,
+        "exp": int((datetime.now(timezone.utc) + timedelta(minutes=expires_in_minutes)).timestamp())
+    }
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    print("Generated JWT Token:")
+    print(token)
+    return token
+
 
 def test_add_comment():
     """Test dodawania komentarza"""
     url = "http://127.0.0.1:8000/comment/1"
-    data = {"contents": "test komentarz"}
-    response = requests.post(url, json=data)
+    data = {"contents": "test komentarz jwt z tablica rol"}
+    
+    token = create_access_token(
+        user_id="ae1378eb-c62d-4ee5-8580-d7406ffb3c5b",
+        roles=["USER"],
+        expires_in_minutes=30
+    )
+    headers = {
+        "token": token
+    }
+    
+    response = requests.post(url, json=data, headers=headers)
     print(response.json())
 
 
@@ -29,7 +67,13 @@ def test_get_user_by_email():
 def test_get_my_borrows():
     """Test pobierania moich wypożyczeń"""
     url = "http://127.0.0.1:8000/my-borrows"
-    headers = {"email": "user1@example.com"}
+    
+    token = create_access_token(
+        user_id="ae1378eb-c62d-4ee5-8580-d7406ffb3c5b",
+        roles=["USER"],
+        expires_in_minutes=30
+    )
+    headers = {"token": token}
     response = requests.get(url, headers=headers)
     
     if response.status_code == 200:

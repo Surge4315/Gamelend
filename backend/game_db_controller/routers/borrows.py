@@ -4,8 +4,10 @@ from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 import httpx
+import requests
 from .. import models
 from ..database import db_instance
+from ..jwt_decoder import decode_access_token
 
 router = APIRouter(tags=["Borrows"])
 
@@ -43,10 +45,28 @@ def verify_user_email(email: str) -> str:
 
 @router.get("/my-borrows")
 def my_borrows(
-    email: str = Header(...),
+    token: str = Header(...),
     db: Session = Depends(get_db)
 ):
-    user_id = verify_user_email(email)
+    # Dekodowanie JWT i wyciągnięcie user_id
+    try:
+        payload = decode_access_token(token)
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token: missing user_id")
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    
+    # Weryfikacja użytkownika przez endpoint by-id-id
+    try:
+        response = requests.get(
+            "http://127.0.0.1:8001/by-id-id",
+            params={"id": user_id}
+        )
+        if response.status_code != 200:
+            raise HTTPException(status_code=404, detail="User not found")
+    except requests.RequestException:
+        raise HTTPException(status_code=503, detail="User service unavailable")
 
     borrows = db.query(models.Borrow).filter(
         models.Borrow.user_id == user_id
