@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Cookie
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from .. import models
@@ -34,19 +34,19 @@ def get_comments(game_id: int, db: Session = Depends(get_db)):
 def add_comment(
     game_id: int,
     comment: CommentCreate,
-    token: str = Header(...),
+    access_token: str = Cookie(...),   # 👈 JWT z ciasteczka
     db: Session = Depends(get_db)
 ):
     # Dekodowanie JWT i wyciągnięcie user_id
     try:
-        payload = decode_access_token(token)
+        payload = decode_access_token(access_token)
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token: missing user_id")
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
     
-    # Weryfikacja użytkownika przez endpoint by-id-id
+    # Weryfikacja użytkownika
     try:
         response = requests.get(
             "http://127.0.0.1:8001/by-id-id",
@@ -74,3 +74,4 @@ def add_comment(
         "commentId": str(new_comment.id),
         "contents": new_comment.contents
     }
+

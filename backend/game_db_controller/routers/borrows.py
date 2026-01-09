@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel, EmailStr
@@ -17,18 +17,8 @@ BACKEND_USERS_URL = "http://127.0.0.1:8001"
 
 
 def verify_user_email(email: str) -> str:
-    """
-    Weryfikuje email użytkownika i zwraca jego ID.
-    
-    Args:
-        email: Adres email użytkownika
-        
-    Returns:
-        str: ID użytkownika
-        
-    Raises:
-        HTTPException: Gdy użytkownik nie istnieje (404) lub wystąpił błąd serwisu (500)
-    """
+    #Weryfikuje email użytkownika i zwraca jego ID.
+ 
     try:
         response = httpx.get(
             f"{BACKEND_USERS_URL}/by-email",
@@ -45,12 +35,12 @@ def verify_user_email(email: str) -> str:
 
 @router.get("/my-borrows")
 def my_borrows(
-    token: str = Header(...),
+    access_token: str = Cookie(...),
     db: Session = Depends(get_db)
 ):
     # Dekodowanie JWT i wyciągnięcie user_id
     try:
-        payload = decode_access_token(token)
+        payload = decode_access_token(access_token)
         user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token: missing user_id")
@@ -104,8 +94,18 @@ class LendRequest(BaseModel):
 @router.post("/lend", status_code=201)
 def lend_game(
     data: LendRequest,
+    access_token: str = Cookie(...),
     db: Session = Depends(get_db)
 ):
+    # Dekodowanie JWT i weryfikacja uprawnień admina
+    try:
+        payload = decode_access_token(access_token)
+        roles = payload.get("roles", [])
+        if "ADMIN" not in roles:
+            raise HTTPException(status_code=403, detail="Only admins can lend games")
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    
     # walidacja copyId + race condition handling
     copy = (
     db.query(models.Copy)
@@ -160,8 +160,18 @@ class ReceiveRequest(BaseModel):
 @router.delete("/receive", status_code=200)
 def receive_game(
     data: ReceiveRequest,
+    access_token: str = Cookie(...),
     db: Session = Depends(get_db)
 ):
+    # Dekodowanie JWT i weryfikacja uprawnień admina
+    try:
+        payload = decode_access_token(access_token)
+        roles = payload.get("roles", [])
+        if "ADMIN" not in roles:
+            raise HTTPException(status_code=403, detail="Only admins can return games")
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    
     # pobranie userId po emailu
     user_id = verify_user_email(data.email)
 
@@ -223,8 +233,18 @@ def get_user_email_by_id(user_id: str) -> str:
 @router.get("/borrows")
 def get_all_borrows(
     i: int = Query(0, description="Numer strony (każda strona to 18 wypożyczeń)"),
+    access_token: str = Cookie(...),
     db: Session = Depends(get_db)
 ):
+    # Dekodowanie JWT i weryfikacja uprawnień admina
+    try:
+        payload = decode_access_token(access_token)
+        roles = payload.get("roles", [])
+        if "ADMIN" not in roles:
+            raise HTTPException(status_code=403, detail="Only admins can view all borrows")
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    
     """
     Endpoint admina do pobierania wszystkich aktywnych wypożyczeń.
     Zwraca wypożyczenia posortowane od najstarszych, paginowane po 18 elementów.
@@ -275,8 +295,17 @@ def get_all_borrows(
 @router.get("/borrows/by-email")
 def get_borrows_by_email(
     email: str = Query(...),
+    access_token: str = Cookie(...),
     db: Session = Depends(get_db)
-):
+):  
+    # Dekodowanie JWT i weryfikacja uprawnień admina
+    try:
+        payload = decode_access_token(access_token)
+        roles = payload.get("roles", [])
+        if "ADMIN" not in roles:
+            raise HTTPException(status_code=403, detail="Only admins can view other user borrows")
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
     """
     Endpoint admina do pobierania wszystkich wypożyczeń konkretnego użytkownika.
     Wymaga podania emailu użytkownika.

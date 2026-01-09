@@ -41,19 +41,21 @@ def create_access_token(user_id: str, roles, expires_in_minutes: int = 15) -> st
 def test_add_comment():
     """Test dodawania komentarza"""
     url = "http://127.0.0.1:8000/comment/1"
-    data = {"contents": "test komentarz jwt z tablica rol"}
-    
-    token = create_access_token(
+    data = {"contents": "test komentarz jwt z tablica rol i cookiesami acc"}
+
+    access_token = create_access_token(
         user_id="ae1378eb-c62d-4ee5-8580-d7406ffb3c5b",
         roles=["USER"],
         expires_in_minutes=30
     )
-    headers = {
-        "token": token
+
+    cookies = {
+        "access_token": access_token   # nazwa MUSI zgadzać się z tym, czego oczekuje backend
     }
-    
-    response = requests.post(url, json=data, headers=headers)
+
+    response = requests.post(url, json=data, cookies=cookies)
     print(response.json())
+
 
 
 def test_get_user_by_email():
@@ -68,13 +70,13 @@ def test_get_my_borrows():
     """Test pobierania moich wypożyczeń"""
     url = "http://127.0.0.1:8000/my-borrows"
     
-    token = create_access_token(
-        user_id="ae1378eb-c62d-4ee5-8580-d7406ffb3c5b",
+    access_token = create_access_token(
+        user_id="9fce7567-50f4-46f1-95fa-708b79f1c3e3",
         roles=["USER"],
         expires_in_minutes=30
     )
-    headers = {"token": token}
-    response = requests.get(url, headers=headers)
+    cookies = {"access_token": access_token}
+    response = requests.get(url, cookies=cookies)
     
     if response.status_code == 200:
         borrows = response.json()
@@ -87,11 +89,19 @@ def test_get_my_borrows():
 def test_lend_game():
     """Test wypożyczania gry"""
     url = "http://127.0.0.1:8000/lend"
+    access_token = create_access_token(
+        user_id="12bdaa9f-a08c-47b9-9304-4144746249c2", #admin
+        #roles=["USER", "ADMIN"],
+        roles=["USER"],
+        expires_in_minutes=30
+    )
+    cookies = {"access_token": access_token}
+    
     payload = {
         "copyId": "a220b597-1cab-404e-a7df-943c52bb945f",
         "email": "user2@example.com"
     }
-    response = requests.post(url, json=payload)
+    response = requests.post(url, json=payload, cookies=cookies)
     
     if response.status_code == 201:
         print("Wypożyczenie OK")
@@ -104,11 +114,20 @@ def test_lend_game():
 def test_receive_game():
     """Test zwracania gry"""
     url = "http://127.0.0.1:8000/receive"
+    
+    access_token = create_access_token(
+        user_id="12bdaa9f-a08c-47b9-9304-4144746249c2", #admin
+        #roles=["USER", "ADMIN"],
+        roles=["USER"],
+        expires_in_minutes=30
+    )
+    cookies = {"access_token": access_token}
+    
     payload = {
-        "copyId": "46d451d4-5918-4e18-8e21-2e35cf978c1d",
-        "email": "user1@example.com"
+        "copyId": "a220b597-1cab-404e-a7df-943c52bb945f",
+        "email": "user2@example.com"
     }
-    response = requests.delete(url, json=payload)
+    response = requests.delete(url, json=payload, cookies=cookies)
     
     if response.status_code == 200:
         print("Gra została zwrócona")
@@ -117,6 +136,45 @@ def test_receive_game():
         print("Błąd:", response.status_code)
         print(response.json())
 
+def test_get_all_borrows():
+    """Test pobierania moich wypożyczeń"""
+    url = "http://127.0.0.1:8000/borrows?i=0"
+    
+    access_token = create_access_token(
+        user_id="12bdaa9f-a08c-47b9-9304-4144746249c2",
+        #roles=["USER", "ADMIN"],
+        roles=["USER"],
+        expires_in_minutes=30
+    )
+    cookies = {"access_token": access_token}
+    response = requests.get(url, cookies=cookies)
+    
+    if response.status_code == 200:
+        borrows = response.json()
+        for b in borrows:
+            print(f"E-mail: {b['email']}, Copy ID: {b['copyId']}, Borrow Start Time: {b['borrowStartTime']}, Cover: {b['cover']}")
+    else:
+        print(f"Error: {response.status_code}, {response.text}")
+        
+def test_get_user_borrows():
+    """Test pobierania moich wypożyczeń"""
+    url = "http://127.0.0.1:8000/borrows/by-email?email=user2@example.com"
+    
+    access_token = create_access_token(
+        user_id="12bdaa9f-a08c-47b9-9304-4144746249c2",
+        roles=["USER", "ADMIN"],
+        #roles=["USER"],
+        expires_in_minutes=30
+    )
+    cookies = {"access_token": access_token}
+    response = requests.get(url, cookies=cookies)
+    
+    if response.status_code == 200:
+        borrows = response.json()
+        for b in borrows:
+            print(f"E-mail: {b['email']}, Copy ID: {b['copyId']}, Borrow Start Time: {b['borrowStartTime']}, Cover: {b['cover']}")
+    else:
+        print(f"Error: {response.status_code}, {response.text}")
 
 def main():
     """Główna funkcja z menu wyboru testu"""
@@ -126,9 +184,11 @@ def main():
     print("3. Pobierz moje wypożyczenia")
     print("4. Wypożycz grę")
     print("5. Zwróć grę")
+    print("6. Pobierz wszystkie wypożyczenia")
+    print("7. Pobierz wypożyczenia użytkownika po emailu")
     print("0. Wyjście")
     
-    choice = input("\nWybierz test (0-5): ")
+    choice = input("\nWybierz test (0-6): ")
     
     match choice:
         case "1":
@@ -146,6 +206,12 @@ def main():
         case "5":
             print("\n--- Test: Zwracanie gry ---")
             test_receive_game()
+        case "6":
+            print("\n--- Test: Pobieranie wszystkich wypożyczeń ---")
+            test_get_all_borrows()
+        case "7":
+            print("\n--- Test: Pobieranie wypożyczeń użytkownika ---")
+            test_get_user_borrows()
         case "0":
             print("Do widzenia!")
             return
