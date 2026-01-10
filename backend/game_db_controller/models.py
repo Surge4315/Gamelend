@@ -27,7 +27,7 @@ class GameCategoriesEnum(str, enum.Enum):
     Sports = "Sports"
     Racing = "Racing"
 
-class PlatformType(str, enum.Enum):
+class PlatformTypeEnum(str, enum.Enum):
     PS4 = "PS4"
     PS5 = "PS5"
     Xbox_One = "Xbox One"
@@ -59,7 +59,7 @@ class Copy(Base):
     lang_version = Column(Text, nullable=False)
     platform = Column( #unholy mess so it uses values and not names
     Enum(
-        PlatformType,
+        PlatformTypeEnum,
         name="platform_type",
         values_callable=lambda enum_cls: [e.value for e in enum_cls] #e.names doesnt work
     ),
