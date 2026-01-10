@@ -27,6 +27,14 @@ class GameCategoriesEnum(str, enum.Enum):
     Sports = "Sports"
     Racing = "Racing"
 
+class PlatformType(str, enum.Enum):
+    PS4 = "PS4"
+    PS5 = "PS5"
+    Xbox_One = "Xbox One"
+    Xbox_SX = "Xbox SX"
+    Switch = "Switch"
+    Switch_2 = "Switch 2"
+
 class GameCategory(Base):
     __tablename__ = "game_category"
     category = Column(Enum(GameCategoriesEnum), primary_key=True)
@@ -48,6 +56,15 @@ class Copy(Base):
 
     copy_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     game_id = Column(Integer, ForeignKey("game.id", ondelete="CASCADE"), nullable=False)
+    lang_version = Column(Text, nullable=False)
+    platform = Column( #unholy mess so it uses values and not names
+    Enum(
+        PlatformType,
+        name="platform_type",
+        values_callable=lambda enum_cls: [e.value for e in enum_cls] #e.names doesnt work
+    ),
+    nullable=False
+    )
     available = Column(Boolean, nullable=False, default=True)
 
     game = relationship("Game", backref="copies")
