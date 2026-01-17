@@ -16,6 +16,19 @@ game_name_prefixes = ['Dark', 'Final', 'Grand', 'Super', 'Legend', 'Ultimate', '
 game_name_suffixes = ['Quest', 'Wars', 'Legends', 'Adventure', 'Chronicles', 'Battle', 'Arena', 'Journey', 'Saga', 'Heroes',
                       'Realm', 'Empire', 'Odyssey', 'Force', 'Strike', 'Tactics', 'Rivals', 'Destiny', 'Legacy', 'Warfare']
 
+image_links = [
+    'https://upload.wikimedia.org/wikipedia/en/4/4e/Mariobrothers.png',
+    'https://upload.wikimedia.org/wikipedia/en/7/7a/Majin_Tensei_cover.png',
+    'https://upload.wikimedia.org/wikipedia/en/5/53/Space-Invaders-Atari-2600-box-art.jpg',
+    'https://upload.wikimedia.org/wikipedia/en/d/de/Folklore_%28videogame%29_boxart.jpg',
+    'https://upload.wikimedia.org/wikipedia/en/thumb/2/26/CurseOfDarkness_NA_Cover.webp/258px-CurseOfDarkness_NA_Cover.webp.png',
+    'https://upload.wikimedia.org/wikipedia/en/d/d8/Last_Story_Box_Art.jpg',
+    'https://upload.wikimedia.org/wikipedia/en/4/40/Ico_cover_-_EU%2BJP.jpg',
+    'https://upload.wikimedia.org/wikipedia/en/a/aa/KatamariDamacybox.jpg',
+    'https://upload.wikimedia.org/wikipedia/en/2/22/Ace_Combat_7_Skies_Unknown_game_cover.jpg'
+]
+
+
 # Przykładowe studia
 studios = ['GameStudio Inc', 'Epic Games', 'Pixel Forge', 'Neon Labs', 'Digital Dreams', 
            'Thunder Games', 'Infinity Studios', 'Blaze Interactive', 'Apex Gaming', 'Velocity Games']
@@ -56,7 +69,7 @@ while i <= NUM_GAMES:
     
     studio = random.choice(studios)
     description = generate_description()
-    image_link = f'https://example.com/images/game{i}.jpg'
+    image_link = random.choice(image_links)
     
     # Liczba kopii dla tej gry
     num_copies = random.randint(COPIES_PER_GAME_MIN, COPIES_PER_GAME_MAX)
